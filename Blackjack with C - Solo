@@ -1,0 +1,282 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#pragma warning(disable:4996)
+
+int money = 1000;
+int betting = 0;
+char dealer_second_card;
+
+int user_card_first();
+int user_card_second();
+int dealer_card_first();
+int dealer_card_second();
+void dealer_second_card_check(int n);
+int dealer_card_third();
+void result(int sum1, int sum2);
+
+int main()
+{
+	int card1 = 0, card2 = 0, card3 = 0;
+	int dealer1 = 0, dealer2 = 0, dealer3 = 0;
+	int user_sum = 0, dealer_sum = 0;
+	int answer;
+	/* 반복문을 2개 사용한 이유
+		1. 중간에 블랙잭이 된 경우 바로 다음 게임을 진행하기 위해
+		2. 베팅할 금액이 없어서 파산한 경우 게임을 끝내기 위해 */
+	do
+	{
+		while (money > 0) 
+		{
+			srand((unsigned)time(NULL));
+			printf("How much do you bet? - You have %d Dollars(Minimum = 10)  : ", money);
+			scanf("%d", &betting);
+			if (betting < 10 || betting > money) //베팅 최소금액과 최대금액 설정
+			{
+				printf("Break rules.. \n");
+				exit(1);
+			}
+			money = money - betting;
+			printf("내가 받은 카드 : ");
+			card1 = user_card_first(); //카드 제공
+			card2 = user_card_first();
+			printf("\n");
+			if (card1 == 1) // 판별
+			{
+				printf("A를 11로 쓰겠습니까? (Yes = 1)");
+				scanf("%d", &answer);
+				if (answer == 1)
+					card1 = 11;
+			}
+			if (card2 == 1)
+			{
+				printf("A를 11로 쓰겠습니까? (Yes = 1)");
+				scanf("%d", &answer);
+				if (answer == 1)
+					card2 = 11;
+			}
+			user_sum = card1 + card2;
+
+			dealer1 = dealer_card_first();
+			printf("\n");
+			dealer2 = dealer_card_second();
+			if (dealer1 == 1)
+				dealer1 = 11;
+			if (dealer2 == 1)
+				dealer2 = 11;
+			if (dealer1 == 1 && dealer2 == 1)
+			{
+				dealer1 = 11;
+				dealer2 = 1;
+			} //딜러의 A 판단은 본인이 할 수 없으므로
+			dealer_sum = dealer1 + dealer2;
+
+			if (user_sum == 21)
+			{
+				printf("BlackJack!! \n");
+				money = money + betting * 2;
+				printf("The rest of money is %d\n\n", money);
+				break;
+			}
+			if (dealer_sum == 21)
+			{
+				dealer_second_card_check(dealer2);
+				printf("Dealer is BlackJack.\n");
+				printf("The rest of money is %d\n\n", money);
+				break;
+			}
+			printf("Hit(Number 1), Stand(except Number 1)");
+			scanf("%d", &answer);
+			if (answer == 1)
+			{
+				card3 = user_card_second();
+				user_sum = user_sum + card3;
+			}
+			dealer_second_card_check(dealer2);
+			if (dealer_sum < 17)
+			{
+				dealer3 = dealer_card_third();
+				dealer_sum = dealer_sum + dealer3;
+			}
+			/* 마지막 카드에서 A가 나올 경우 A를 11로 쓰는 경우는 드물기 때문에 설정하지 않음. */
+			printf("나의 카드 합 : %d\n\n", user_sum);
+			printf("딜러 카드 합 : %d\n\n", dealer_sum);
+			result(user_sum, dealer_sum);
+		}
+	} while (money > 0);
+	printf("Bankrupt! \n");
+}
+
+int user_card_first()
+{
+	int user_card1;
+	user_card1 = rand() % 13 + 1;
+	if (user_card1 == 1) {
+		printf("%c ", 'A');
+	}
+	else if (user_card1 == 11) {
+		printf("%c ", 'J');
+		user_card1 = 10;
+	}
+	else if (user_card1 == 12) {
+		printf("%c ", 'Q');
+		user_card1 = 10;
+	}
+	else if (user_card1 == 13) {
+		printf("%c ", 'K');
+		user_card1 = 10;
+	}
+	else {
+		printf("%d ", user_card1);
+	}
+	return user_card1;
+}
+
+int user_card_second()
+{
+	int user_card2;
+	user_card2 = rand() % 13 + 1;
+	if (user_card2 == 1) {
+		printf("추가로 받은 카드 : %c \n", 'A');
+	}
+	else if (user_card2 == 11) {
+		printf("추가로 받은 카드 : %c \n", 'J');
+		user_card2 = 10;
+	}
+	else if (user_card2 == 12) {
+		printf("추가로 받은 카드 : %c \n", 'Q');
+		user_card2 = 10;
+	}
+	else if (user_card2 == 13) {
+		printf("추가로 받은 카드 : %c \n", 'K');
+		user_card2 = 10;
+	}
+	else {
+		printf("추가로 받은 카드 : %d \n", user_card2);
+	}
+	return user_card2;
+}
+
+int dealer_card_first()
+{
+	int dealer_card1;
+	dealer_card1 = rand() % 13 + 1;
+	if (dealer_card1 == 1) {
+		printf("딜러의 카드 : %c ", 'A');
+	}
+	else if (dealer_card1 == 11) {
+		printf("딜러의 카드 : %c ", 'J');
+		dealer_card1 = 10;
+	}
+	else if (dealer_card1 == 12) {
+		printf("딜러의 카드 : %c ", 'Q');
+		dealer_card1 = 10;
+	}
+	else if (dealer_card1 == 13) {
+		printf("딜러의 카드 : %c ", 'K');
+		dealer_card1 = 10;
+	}
+	else {
+		printf("딜러의 카드 : %d ", dealer_card1);
+	}
+	return dealer_card1;
+}
+
+int dealer_card_second()
+{
+	int dealer_card2;
+	dealer_card2 = rand() % 13 + 1;
+	if (dealer_card2 == 1) {
+		dealer_second_card = 'A';
+	}
+	else if (dealer_card2 == 11) {
+		dealer_second_card = 'J';
+		dealer_card2 = 10;
+	}
+	else if (dealer_card2 == 12) {
+		dealer_second_card = 'Q';
+		dealer_card2 = 10;
+	}
+	else if (dealer_card2 == 13) {
+		dealer_second_card = 'K';
+		dealer_card2 = 10;
+	}
+	return dealer_card2;
+}
+
+void dealer_second_card_check(int n)
+{
+	if (n == 10)
+		printf("딜러의 두번째 카드 : %c \n", dealer_second_card);
+	else if (n == 1 || n == 11)
+		printf("딜러의 두번째 카드 : %c \n", dealer_second_card);
+	else
+		printf("딜러의 두번째 카드 : %d \n", n);
+}
+
+int dealer_card_third()
+{
+	int dealer_card3;
+	dealer_card3 = rand() % 13 + 1;
+	if (dealer_card3 == 1) {
+		printf("추가 딜러의 카드 : %c \n", 'A');
+	}
+	else if (dealer_card3 == 11) {
+		dealer_card3 = 10;
+		printf("추가 딜러의 카드 : %c \n", 'J');
+	}
+	else if (dealer_card3 == 12) {
+		dealer_card3 = 10;
+		printf("추가 딜러의 카드 : %c \n", 'Q');
+	}
+	else if (dealer_card3 == 13) {
+		dealer_card3 = 10;
+		printf("추가 딜러의 카드 : %c \n", 'K');
+	}
+	else
+		printf("추가 딜러의 카드 : %d \n", dealer_card3);
+	return dealer_card3;
+}
+
+void result(int sum1, int sum2)
+{
+	if (sum1 == 21)
+	{
+		printf("BlackJack!! \n");
+		money = money + betting * 2;
+		printf("The rest of money is %d\n\n", money);
+	}
+	else if (sum2 == 21)
+	{
+		printf("Dealer is BlackJack.\n");
+		printf("The rest of money is %d\n\n", money);
+	}
+	else if (sum1 > 21) // 버스트인 경우 딜러의 카드와 상관없이 패배이므로 먼저 사용
+	{
+		printf("Bust! You lose..\n");
+		printf("The rest of money is %d\n\n", money);
+	}
+	else if (sum2 > 21)
+	{
+		printf("Dealer Bust! You Win!\n");
+		money = money + betting * 2;
+		printf("The rest of money is %d\n\n", money);
+	}
+	else if (sum1 > sum2)
+	{
+		printf("You Win!\n");
+		money = money + betting * 2;
+		printf("The rest of money is %d\n\n", money);
+	}
+	else if (sum1 < sum2)
+	{
+		printf("You Lose ..\n");
+		printf("The rest of money is %d\n\n", money);
+	}
+	else
+	{
+		printf("Draw. \n");
+		money = money + betting;
+		printf("The rest of money is %d\n\n", money);
+	}
+}
