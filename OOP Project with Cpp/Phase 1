@@ -1,0 +1,144 @@
+#include <iostream>
+using namespace std;
+
+struct Account_Information {
+	int Account_Number = 0;
+	char name[20];
+	int Account_Balance = 0;
+}account;
+
+void ShowMenu();
+void Make_Account();
+void Deposit_Money();
+void Withdrawal_Money();
+void Account_Information_Output();
+
+int main()
+{
+	int number;
+
+	while (1)
+	{
+		ShowMenu();
+		cout << "Select number : ";
+		cin >> number;
+
+		switch (number)
+		{
+		case 1: 
+			Make_Account();
+			break;
+		case 2:
+			Deposit_Money();
+			break;
+		case 3:
+			Withdrawal_Money();
+			break;
+		case 4:
+			Account_Information_Output();
+			break;
+		case 5:
+			cout << "Shut Down the program... " << endl;
+			exit(1);
+		default:
+			cout << "Wrong Input." << endl;
+		}
+	}
+	
+}
+
+void ShowMenu()
+{
+	cout << endl;
+	cout << "-----Menu------" << endl;
+	cout << "1. Opening an account" << endl;
+	cout << "2. Deposit" << endl;
+	cout << "3. Withdrawal" << endl;
+	cout << "4. Print out account information" << endl;
+	cout << "5. Program close" << endl;
+}
+
+void Make_Account()
+{
+	int answer;
+	while (1)
+	{
+		if (account.Account_Number == 0)
+		{
+			cout << " **** This is menu of making account ****" << endl;
+			cout << "Account Number : ";
+			cin >> account.Account_Number;
+			cout << "Name : ";
+			cin >> account.name;
+			cout << "Deposit Amount : ";
+			cin >> account.Account_Balance;
+			break;
+		}
+		else
+		{
+			cout << "Do you want to change Account Information? (Yes = 1)";
+			cin >> answer;
+			if (answer == 1)
+			{
+				account.Account_Number = 0;
+			}
+			else
+				break;
+		}
+	}
+}
+
+void Deposit_Money()
+{
+	int check_account;
+	int deposit_money;
+	cout << "Input your account number : ";
+	cin >> check_account;
+	if (account.Account_Number == check_account)
+	{
+		cout << "Deposit Amount : ";
+		cin >> deposit_money;
+		account.Account_Balance += deposit_money;
+		cout << "Deposit Finish" << endl;
+	}
+	else
+	{
+		cout << "Incorrect account number." << endl;
+	}
+}
+
+void Withdrawal_Money()
+{
+	int check_account;
+	int withdrawal_money;
+	cout << "Input your account number : ";
+	cin >> check_account;
+	if (account.Account_Number == check_account)
+	{
+		cout << "Withdrawal Amount : ";
+		cin >> withdrawal_money;
+		account.Account_Balance -= withdrawal_money;
+		cout << "Withdrawal Finish" << endl;
+	}
+	else
+	{
+		cout << "Incorrect account number." << endl;
+	}
+}
+
+void Account_Information_Output()
+{
+	int check_account;
+	cout << "Check your account number : ";
+	cin >> check_account;
+	if (account.Account_Number == check_account)
+	{
+		cout << "Account Number : " << account.Account_Number << endl;
+		cout << "Name : " << account.name << endl;
+		cout << "Balance : " << account.Account_Balance << endl;
+	}
+	else
+	{
+		cout << "Incorrect account number." << endl;
+	}
+}
