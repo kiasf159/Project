@@ -1,0 +1,207 @@
+// declare member function as const
+
+#include <iostream>
+#include <cstring>
+#pragma warning(disable:4996)
+using namespace std;
+const int NAME_LEN = 20;
+
+void ShowMenu();
+void Make_Account();
+void Deposit_Money();
+void Withdrawal_Money();
+void Account_Information_Output();
+
+enum { MAKE = 1, DEPOSIT, WITHDRAW, INQUIRE, EXIT };
+
+class Account
+{
+private:
+	int accID;
+	int balance;
+	char *cusName;
+public:
+	Account(int ID, int money, char *name)
+		:accID(ID), balance(money)
+	{
+		cusName = new char[strlen(name) + 1];
+		strcpy(cusName, name);
+	}
+
+	Account(const Account &ref) //Copy Constructor
+		: accID(ref.accID), balance(ref.balance)
+	{
+		cusName = new char[strlen(ref.cusName) + 1];
+		strcpy(cusName, ref.cusName);
+	}
+
+	int GetAccID() const //forbid change
+	{
+		return accID;
+	}
+
+	void Deposit(int money)
+	{
+		balance = balance + money;
+	}
+
+	int Withdraw(int money)
+	{
+		if (balance < money)
+			return 0;
+		balance = balance - money;
+		return money;
+	}
+
+	void ShowAccInfo() const
+	{
+		cout << "Account ID : " << accID << endl;
+		cout << "Name : " << cusName << endl;
+		cout << "Balance : " << balance << endl;
+	}
+
+	~Account()
+	{
+		delete[]cusName;
+	}
+};
+
+Account *accArr[100];
+int accNum = 0;
+
+int main()
+{
+	int choice;
+
+	while (1)
+	{
+		ShowMenu();
+		cout << "Choice : ";
+		cin >> choice;
+		cout << endl;
+
+		switch (choice)
+		{
+		case MAKE:
+			Make_Account();
+			break;
+		case DEPOSIT:
+			Deposit_Money();
+			break;
+		case WITHDRAW:
+			Withdrawal_Money();
+			break;
+		case INQUIRE:
+			Account_Information_Output();
+			break;
+		case EXIT:
+			for (int i = 0; i < accNum; i++)
+				delete accArr[i];
+			return 0;
+		default:
+			cout << "illegal selection..." << endl;
+		}
+	}
+	return 0;
+}
+
+void ShowMenu()
+{
+	cout << "-----Menu------" << endl;
+	cout << "1. Opening an Account" << endl;
+	cout << "2. Deposit" << endl;
+	cout << "3. Withdrawal" << endl;
+	cout << "4. Print out Account Information" << endl;
+	cout << "5. Program Close." << endl;
+}
+void Make_Account()
+{
+	int id = 0;
+	char name[NAME_LEN];
+	int balance;
+	int answer;
+
+	while (1)
+	{
+		if (id != 0)
+		{
+			cout << "Do you want to change Account Information?(Yes == 1)";
+			cin >> answer;
+			if (answer == 1)
+			{
+				id = 0;
+			}
+			else
+				break;
+		}
+		else
+		{
+			cout << "[Opening an Account]" << endl;
+			cout << "Account ID : ";
+			cin >> id;
+			cout << "Name : ";
+			cin >> name;
+			cout << "Deposit money : ";
+			cin >> balance;
+			cout << endl;
+			break;
+		}
+	}
+
+	accArr[accNum++] = new Account(id, balance, name);
+}
+void Deposit_Money()
+{
+	int money;
+	int id;
+	cout << "[Deposit Corner]" << endl;
+	cout << "Account ID : ";
+	cin >> id;
+	cout << "Deposit money : ";
+	cin >> money;
+
+	for (int i = 0; i < accNum; i++)
+	{
+		if (accArr[i]->GetAccID() == id)
+		{
+			accArr[i]->Deposit(money);
+			cout << "Deposit Complete" << endl;
+			return;
+		}
+	}
+	cout << "It's not found. " << endl;
+}
+void Withdrawal_Money()
+{
+	int money;
+	int id;
+	cout << "[Withdrawal]" << endl;
+	cout << "Account ID : ";
+	cin >> id;
+	cout << "Withdrawal money : ";
+	cin >> money;
+
+	for (int i = 0; i < accNum; i++)
+	{
+		if (accArr[i]->GetAccID() == id)
+		{
+			if (accArr[i]->Withdraw(money) == 0)
+			{
+				cout << "Balance Shortage.." << endl;
+				return;
+			}
+			cout << "Withdrawal Complete" << endl;
+			return;
+		}
+	}
+	cout << "It's not found." << endl;
+}
+
+void Account_Information_Output()
+{
+	for (int i = 0; i < accNum; i++)
+	{
+		accArr[i]->ShowAccInfo();
+		cout << endl;
+	}
+}
